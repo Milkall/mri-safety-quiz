@@ -69,10 +69,11 @@
         }
 
         #mri-stage {
+            /* 修正點 2: 降低 SVG 容器的高度為 150px */
             background-color: #fff8e1;
             border: 1px solid #ffecb3;
             width: 100%; 
-            height: 200px;
+            height: 150px; 
             position: relative; 
         }
 
@@ -84,10 +85,8 @@
 
         /* 病人圖示的移動控制 */
         #patient-bed-group {
-            /* 這是讓移動產生漸變效果的關鍵語法 */
+            /* 修正點 1: 確保行動裝置相容性，並保留 transition */
             transition: transform 1.5s ease-in-out; 
-            
-            /* 新增廠商前綴以確保行動裝置相容性 */
             -webkit-transition: transform 1.5s ease-in-out; 
             -moz-transition: transform 1.5s ease-in-out;    
             -o-transition: transform 1.5s ease-in-out;      
