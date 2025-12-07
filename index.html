@@ -27,6 +27,10 @@
         h1 {
             color: #004d40;
             text-align: center;
+            /* 縮小標題字體 */
+            font-size: 20px; 
+            margin-top: 0;
+            margin-bottom: 10px;
         }
         
         .question-box {
@@ -69,7 +73,7 @@
         }
 
         #mri-stage {
-            /* 修正點 2: 降低 SVG 容器的高度為 150px */
+            /* 高度已修正為 150px */
             background-color: #fff8e1;
             border: 1px solid #ffecb3;
             width: 100%; 
@@ -85,7 +89,7 @@
 
         /* 病人圖示的移動控制 */
         #patient-bed-group {
-            /* 修正點 1: 確保行動裝置相容性，並保留 transition */
+            /* 修正點 1: 移除 translateZ(0) 和 -webkit-transform: translateZ(0) */
             transition: transform 1.5s ease-in-out; 
             -webkit-transition: transform 1.5s ease-in-out; 
             -moz-transition: transform 1.5s ease-in-out;    
@@ -123,7 +127,7 @@
                 
                 <rect x="350" y="20" width="300" height="160" rx="20" fill="#fcf7e6" stroke="#1b4965" stroke-width="2"/>
                 <circle cx="500" cy="100" r="60" fill="white" stroke="#1b4965" stroke-width="2"/>
-                <text x="450" y="15" font-size="12" fill="#1b4965">MRI SCANNER</text>
+                <text x="450" y="15" font-size="16" fill="#1b4965">MRI SCANNER</text>
                 
                 <g id="patient-bed-group" transform="translate(50, 0)"> 
                     
