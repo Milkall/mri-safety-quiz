@@ -96,12 +96,13 @@
 
         /* 病人圖示的移動控制 */
         #patient-bed-group {
-            /* 過渡效果保留，以確保電腦上運作正常 */
+            /* 修正點 2: 更精準的 CSS 轉換過渡設定 */
             transition: transform 1.5s ease-in-out; 
             -webkit-transition: transform 1.5s ease-in-out; 
             -moz-transition: transform 1.5s ease-in-out;    
             -o-transition: transform 1.5s ease-in-out;      
             
+            /* 確保轉換類型的一致性 (translate 已經在 JS 中設定) */
             transform-origin: center;
         }
 
@@ -191,7 +192,6 @@
 
         const questions = [
             {
-                // 修正點 2: 替換掉 Markdown 星號
                 text: "Question 1: In clinical trials, which critical document must be finalized <strong>before \"Data Lock\"</strong> to prevent bias and ensure scientific integrity?",
                 options: [
                     "The Final Clinical Study Report (CSR)",
