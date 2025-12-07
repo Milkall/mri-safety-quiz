@@ -84,8 +84,14 @@
 
         /* 病人圖示的移動控制 */
         #patient-bed-group {
-            /* 這是包含病人、床墊、床架的可移動群組 */
+            /* 這是讓移動產生漸變效果的關鍵語法 */
             transition: transform 1.5s ease-in-out; 
+            
+            /* 新增廠商前綴以確保行動裝置相容性 */
+            -webkit-transition: transform 1.5s ease-in-out; 
+            -moz-transition: transform 1.5s ease-in-out;    
+            -o-transition: transform 1.5s ease-in-out;      
+            
             transform-origin: center;
         }
 
@@ -187,7 +193,6 @@
                 },
                 incorrectAction: () => {
                     feedbackDiv.className = 'incorrect';
-                    // 修正點 1: 使用 <strong> 代替 **
                     feedbackDiv.innerHTML = '❌ <strong>Incorrect!</strong> The correct answer is: <strong>The Statistical Analysis Plan (SAP)</strong>. Proceed to the next question.';
                     setTimeout(loadNextQuestion, 3000); 
                 }
@@ -203,7 +208,6 @@
                 correctAction: () => {
                     setPatientPosition(STAGE_POSITIONS['stage-3']); 
                     feedbackDiv.className = 'correct';
-                    // 修正點 2: 使用 <strong> 代替 **
                     feedbackDiv.innerHTML = '✅ <strong>Correct!</strong> The patient has safely and fully entered the MRI! Game over.';
                 },
                 incorrectAction: () => {
@@ -211,7 +215,6 @@
                     setPatientPosition(STAGE_POSITIONS['stage-1']); 
                     
                     feedbackDiv.className = 'incorrect';
-                    // 修正點 3: 使用 <strong> 代替 **
                     feedbackDiv.innerHTML = '❌ <strong>Incorrect!</strong> The correct answer is: <strong>Remove all metal items</strong>. Please <strong>re-check for metal items</strong> before trying again!';
                     
                     setTimeout(() => {
@@ -279,7 +282,6 @@
 
             if (isCorrect) {
                 feedbackDiv.className = 'correct';
-                // 修正點 4: 使用 <strong> 代替 **
                 feedbackDiv.innerHTML = '✅ <strong>Correct!</strong> The patient moves to the next stage!';
                 q.correctAction();
                 
