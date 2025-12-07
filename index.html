@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Clinical Trial & MRI Safety Quiz</title>
     <style>
-        /* CSS 樣式 (維持不變) */
+        /* CSS 樣式 */
         body {
             font-family: 'Arial', sans-serif;
             display: flex;
@@ -13,6 +13,8 @@
             align-items: center;
             padding: 20px;
             background-color: #f4f7f6;
+            /* 修正點 1: 禁用觸控滑動，修復手機動畫被中斷的問題 */
+            touch-action: manipulation; 
         }
 
         #game-container {
@@ -73,11 +75,10 @@
         }
 
         #mri-stage {
-            /* 修正點 1: 調整為響應式高度 */
+            /* 響應式高度設定 */
             background-color: #fff8e1;
             border: 1px solid #ffecb3;
             width: 100%; 
-            /* 使用 padding-bottom Hack 創建一個寬高比例為 700:200 的響應式容器 */
             padding-bottom: calc(200 / 700 * 100%); 
             height: 0; 
             position: relative; 
@@ -95,7 +96,7 @@
 
         /* 病人圖示的移動控制 */
         #patient-bed-group {
-            /* 保留 transition 語法 */
+            /* 過渡效果保留，以確保電腦上運作正常 */
             transition: transform 1.5s ease-in-out; 
             -webkit-transition: transform 1.5s ease-in-out; 
             -moz-transition: transform 1.5s ease-in-out;    
@@ -190,7 +191,8 @@
 
         const questions = [
             {
-                text: "Question 1: According to regulatory guidelines (FDA/EMA), what is the single most critical document in a clinical trial that must be finalized before \"Data Lock\" to ensure scientific integrity and prevent post-hoc bias?",
+                // 修正點 2: 替換掉 Markdown 星號
+                text: "Question 1: In clinical trials, which critical document must be finalized <strong>before \"Data Lock\"</strong> to prevent bias and ensure scientific integrity?",
                 options: [
                     "The Final Clinical Study Report (CSR)",
                     "The Statistical Analysis Plan (SAP)",
