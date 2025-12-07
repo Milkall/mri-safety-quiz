@@ -161,7 +161,7 @@
         const STAGE_POSITIONS = {
             'stage-1': 50,       // 初始位置 
             'stage-2': 180,      // 進入 MRI 一半 
-            'stage-3': 300       // 完整進入 MRI 
+            'stage-3': 290       // 完整進入 MRI 
         };
 
         /**
@@ -187,7 +187,8 @@
                 },
                 incorrectAction: () => {
                     feedbackDiv.className = 'incorrect';
-                    feedbackDiv.innerHTML = '❌ **Incorrect!** The correct answer is: **The Statistical Analysis Plan (SAP)**. Proceed to the next question.';
+                    // 修正點 1: 使用 <strong> 代替 **
+                    feedbackDiv.innerHTML = '❌ <strong>Incorrect!</strong> The correct answer is: <strong>The Statistical Analysis Plan (SAP)</strong>. Proceed to the next question.';
                     setTimeout(loadNextQuestion, 3000); 
                 }
             },
@@ -202,14 +203,16 @@
                 correctAction: () => {
                     setPatientPosition(STAGE_POSITIONS['stage-3']); 
                     feedbackDiv.className = 'correct';
-                    feedbackDiv.innerHTML = '✅ **Correct!** The patient has safely and fully entered the MRI! Game over.';
+                    // 修正點 2: 使用 <strong> 代替 **
+                    feedbackDiv.innerHTML = '✅ <strong>Correct!</strong> The patient has safely and fully entered the MRI! Game over.';
                 },
                 incorrectAction: () => {
                     patientElement.classList.add('shake-animation'); 
                     setPatientPosition(STAGE_POSITIONS['stage-1']); 
                     
                     feedbackDiv.className = 'incorrect';
-                    feedbackDiv.innerHTML = '❌ **Incorrect!** The correct answer is: **Remove all metal items**. Please **re-check for metal items** before trying again!';
+                    // 修正點 3: 使用 <strong> 代替 **
+                    feedbackDiv.innerHTML = '❌ <strong>Incorrect!</strong> The correct answer is: <strong>Remove all metal items</strong>. Please <strong>re-check for metal items</strong> before trying again!';
                     
                     setTimeout(() => {
                         patientElement.classList.remove('shake-animation');
@@ -276,7 +279,8 @@
 
             if (isCorrect) {
                 feedbackDiv.className = 'correct';
-                feedbackDiv.innerHTML = '✅ **Correct!** The patient moves to the next stage!';
+                // 修正點 4: 使用 <strong> 代替 **
+                feedbackDiv.innerHTML = '✅ <strong>Correct!</strong> The patient moves to the next stage!';
                 q.correctAction();
                 
                 if (currentQuestionIndex < questions.length - 1) {
