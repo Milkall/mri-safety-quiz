@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clinical Trial & MRI Safety Quiz</title>
+    <style>
+        /* CSS 樣式 (維持不變) */
+        body {
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            background-color: #f4f7f6;
+        }
+
+        #game-container {
+            background-color: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 600px;
+        }
+
+        h1 {
+            color: #004d40;
+            text-align: center;
+        }
+        
+        .question-box {
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid #b2dfdb;
+            border-radius: 8px;
+            background-color: #e0f2f1;
+        }
+
+        .option-button {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0;
+            border: none;
+            border-radius: 6px;
+            background-color: #00897b;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.1s;
+        }
+
+        .option-button:hover {
+            background-color: #00695c;
+        }
+        
+        .option-button:active {
+            transform: scale(0.98);
+        }
+
+        /* 答案反饋與圖片容器 */
+        #feedback {
+            text-align: center;
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 8px;
+            min-height: 40px; 
+        }
+
+        #mri-stage {
+            background-color: #fff8e1;
+            border: 1px solid #ffecb3;
+            width: 100%; 
+            height: 200px;
+            position: relative; 
+        }
+
+        /* MRI 模擬 SVG 樣式 */
+        #mri-scene {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* 病人圖示的移動控制 */
+        #patient-bed-group {
+            /* 這是包含病人、床墊、床架的可移動群組 */
+            transition: transform 1.5s ease-in-out; 
+            transform-origin: center;
+        }
+
+        /* 專門用於答錯題二的動畫效果 (搖晃) */
+        .shake-animation {
+            animation: shake 0.5s;
+        }
+        
+        /* 搖晃動畫：使用 transform: translateX */
+        @keyframes shake {
+            0%, 100% { transform: translateX(50px); } 
+            20%, 60% { transform: translateX(45px); }
+            40%, 80% { transform: translateX(55px); }
+        }
+
+        /* 顏色回饋 */
+        .correct { background-color: #e8f5e9; color: #2e7d32; border-color: #a5d6a7; }
+        .incorrect { background-color: #ffebee; color: #c62828; border-color: #ef9a9a; }
+        .info { background-color: #e3f2fd; color: #1565c0; border-color: #90caf9; }
+        .disabled { opacity: 0.5; pointer-events: none; } 
+    </style>
+</head>
+<body>
+
+    <div id="game-container">
+        <h1>🏥 Clinical Trial & MRI Safety Game 🧠</h1>
+        
+        <div id="mri-stage">
+            <svg viewBox="0 0 700 200" id="mri-scene">
+                
+                <rect x="350" y="20" width="300" height="160" rx="20" fill="#fcf7e6" stroke="#1b4965" stroke-width="2"/>
+                <circle cx="500" cy="100" r="60" fill="white" stroke="#1b4965" stroke-width="2"/>
+                <text x="450" y="15" font-size="12" fill="#1b4965">MRI SCANNER</text>
+                
+                <g id="patient-bed-group" transform="translate(50, 0)"> 
+                    
+                    <rect x="20" y="170" width="160" height="5" fill="#F4A261" stroke="#1b4965" stroke-width="1"/>
+                    
+                    <rect x="0" y="145" width="200" height="20" fill="#F4A261" stroke="#1b4965" stroke-width="2"/>
+                    
+                    <rect x="5" y="135" width="190" height="10" fill="#B3D9FF" stroke="#1b4965" stroke-width="1"/>
+                    
+                    <line x1="40" y1="170" x2="40" y2="155" stroke="#F4A261" stroke-width="10"/>
+                    <line x1="160" y1="170" x2="160" y2="155" stroke="#F4A261" stroke-width="10"/>
+
+                    <g id="patient">
+                        <rect x="45" y="113" width="100" height="15" rx="5" fill="#1b4965"/>
+                        
+                        <circle cx="160" cy="120.5" r="15" fill="#1b4965"/> 
+                        
+                        <rect x="35" y="120.5" width="10" height="7.5" rx="3" fill="#1b4965"/> 
+                        
+                        </g>
+                </g>
+            </svg>
+        </div>
+
+        <div id="feedback" class="info">Please select an answer.</div>
+
+        <div id="question-area">
+            </div>
+    </div>
+
+    <script>
+        const questionArea = document.getElementById('question-area');
+        const feedbackDiv = document.getElementById('feedback');
+        // 操作的是包含病床和病人的整個 SVG 群組
+        const patientElement = document.getElementById('patient-bed-group'); 
+        let currentQuestionIndex = 0;
+        let isAnswerLocked = false;
+        
+        // --- 設定病人移動的目標位置 (X 軸偏移量) ---
+        const STAGE_POSITIONS = {
+            'stage-1': 50,       // 初始位置 
+            'stage-2': 180,      // 進入 MRI 一半 
+            'stage-3': 300       // 完整進入 MRI 
+        };
+
+        /**
+         * 設置 SVG 群組的 transform 屬性來控制移動
+         * @param {number} xPos - x 軸的移動位置 
+         */
+        function setPatientPosition(xPos, yPos = 0) { 
+            patientElement.setAttribute('transform', `translate(${xPos}, ${yPos})`);
+            patientElement.classList.remove('shake-animation');
+        }
+
+        const questions = [
+            {
+                text: "Question 1: According to regulatory guidelines (FDA/EMA), what is the single most critical document in a clinical trial that must be finalized before \"Data Lock\" to ensure scientific integrity and prevent post-hoc bias?",
+                options: [
+                    "The Final Clinical Study Report (CSR)",
+                    "The Statistical Analysis Plan (SAP)",
+                    "The Subject Informed Consent Form"
+                ],
+                answerIndex: 1, 
+                correctAction: () => {
+                    setPatientPosition(STAGE_POSITIONS['stage-2']); 
+                },
+                incorrectAction: () => {
+                    feedbackDiv.className = 'incorrect';
+                    feedbackDiv.innerHTML = '❌ **Incorrect!** The correct answer is: **The Statistical Analysis Plan (SAP)**. Proceed to the next question.';
+                    setTimeout(loadNextQuestion, 3000); 
+                }
+            },
+            {
+                text: "Question 2: What safety rule must be followed before entering the MRI room?",
+                options: [
+                    "Wear shoes",
+                    "Remove all metal items", 
+                    "Bring your laptop"
+                ],
+                answerIndex: 1, 
+                correctAction: () => {
+                    setPatientPosition(STAGE_POSITIONS['stage-3']); 
+                    feedbackDiv.className = 'correct';
+                    feedbackDiv.innerHTML = '✅ **Correct!** The patient has safely and fully entered the MRI! Game over.';
+                },
+                incorrectAction: () => {
+                    patientElement.classList.add('shake-animation'); 
+                    setPatientPosition(STAGE_POSITIONS['stage-1']); 
+                    
+                    feedbackDiv.className = 'incorrect';
+                    feedbackDiv.innerHTML = '❌ **Incorrect!** The correct answer is: **Remove all metal items**. Please **re-check for metal items** before trying again!';
+                    
+                    setTimeout(() => {
+                        patientElement.classList.remove('shake-animation');
+                        isAnswerLocked = false;
+                        loadQuestion(currentQuestionIndex); 
+                    }, 3000);
+                }
+            }
+        ];
+
+        function loadQuestion(index) {
+            if (index >= questions.length) {
+                questionArea.innerHTML = '<h2>Game Over! Thank you for participating.</h2>';
+                return;
+            }
+
+            const q = questions[index];
+            currentQuestionIndex = index;
+            isAnswerLocked = false;
+            feedbackDiv.className = 'info';
+            feedbackDiv.innerHTML = 'Please select an answer.';
+            
+            if (index === 0) {
+                setPatientPosition(STAGE_POSITIONS['stage-1']);
+            } else if (index === 1) {
+                setPatientPosition(STAGE_POSITIONS['stage-2']); 
+            }
+            
+            let html = `<div class="question-box"><h3>${q.text}</h3>`;
+            q.options.forEach((option, i) => {
+                html += `<button class="option-button" data-index="${i}">${option}</button>`;
+            });
+            html += `</div>`;
+            
+            questionArea.innerHTML = html;
+
+            document.querySelectorAll('.option-button').forEach(button => {
+                button.addEventListener('click', () => {
+                    if (!isAnswerLocked) {
+                        checkAnswer(button.getAttribute('data-index'));
+                    }
+                });
+            });
+        }
+
+        function checkAnswer(selectedIndex) {
+            if (isAnswerLocked) return;
+
+            isAnswerLocked = true;
+            const q = questions[currentQuestionIndex];
+            const selected = parseInt(selectedIndex);
+            const isCorrect = selected === q.answerIndex;
+            const correctOptionText = q.options[q.answerIndex];
+
+            document.querySelectorAll('.option-button').forEach((button, i) => {
+                button.classList.add('disabled');
+                if (i === q.answerIndex) {
+                    button.style.backgroundColor = '#4caf50'; 
+                } else if (i === selected && !isCorrect) {
+                    button.style.backgroundColor = '#f44336'; 
+                }
+            });
+
+
+            if (isCorrect) {
+                feedbackDiv.className = 'correct';
+                feedbackDiv.innerHTML = '✅ **Correct!** The patient moves to the next stage!';
+                q.correctAction();
+                
+                if (currentQuestionIndex < questions.length - 1) {
+                    setTimeout(loadNextQuestion, 2000); 
+                }
+
+            } else {
+                q.incorrectAction();
+            }
+        }
+
+        function loadNextQuestion() {
+            currentQuestionIndex++;
+            document.querySelectorAll('.option-button').forEach(button => {
+                button.classList.remove('disabled');
+                button.style.backgroundColor = '#00897b'; 
+            });
+            loadQuestion(currentQuestionIndex);
+        }
+
+        // 遊戲開始
+        loadQuestion(0);
+    </script>
+
+</body>
+</html>
